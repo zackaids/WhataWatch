@@ -9,41 +9,75 @@
     <p class="text-gray-400">Showing {{ movies|length }} titles</p>
   </div>
 
-  <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-    {% for movie in movies %}
-      <a href="{% url 'movie_detail' movie.slug %}" class="group hover:-translate-y-1 transition">
-        <div class="rounded-2xl overflow-hidden glass shadow-lg hover:shadow-2xl transition">
-          {% if movie.poster_url %}
-            <img src="{{ movie.poster_url }}" alt="{{ movie.name }}" class="w-full h-64 object-cover group-hover:scale-105 transition duration-300" />
-          {% else %}
-            <div class="w-full h-64 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" />
+  <div class="mt-8 overflow-x-auto">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b border-gray-700">
+          <th class="pb-3 text-gray-300 font-semibold">Movie</th>
+          <th class="pb-3 text-gray-300 font-semibold">Genres</th>
+          <th class="pb-3 text-gray-300 font-semibold">
+            <a href="?sort=ratings" class="hover:text-blue-400 transition flex items-center gap-1">
+              Rating
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
               </svg>
-            </div>
-          {% endif %}
-
-          <div class="p-3">
-            <h3 class="font-semibold text-base text-white leading-tight truncate">{{ movie.name }}</h3>
-            <p class="text-sm text-gray-400 mt-1 truncate">
+            </a>
+          </th>
+          <th class="pb-3 text-gray-300 font-semibold">
+            <a href="?sort=likes" class="hover:text-blue-400 transition flex items-center gap-1">
+              Likes
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </a>
+          </th>
+          <th class="pb-3 text-gray-300 font-semibold">
+            <a href="?sort=views" class="hover:text-blue-400 transition flex items-center gap-1">
+              Views
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for movie in movies %}
+          <tr class="border-b border-gray-800 hover:bg-gray-800/30 transition">
+            <td class="py-4">
+              <a href="{% url 'movie_detail' movie.slug %}" class="flex items-center gap-3 group">
+                {% if movie.poster_url %}
+                  <img src="{{ movie.poster_url }}" alt="{{ movie.name }}" class="w-12 h-16 object-cover rounded group-hover:scale-105 transition" />
+                {% else %}
+                  <div class="w-12 h-16 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800 text-gray-400 rounded">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7" />
+                    </svg>
+                  </div>
+                {% endif %}
+                <span class="font-semibold text-white group-hover:text-blue-400 transition">{{ movie.name }}</span>
+              </a>
+            </td>
+            <td class="py-4 text-sm text-gray-400">
               {% for g in movie.genres.all %}{{ g.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
-            </p>
-
-            <div class="mt-3 flex items-center justify-between text-sm text-gray-400">
-              <div class="flex gap-2 items-center">
-                <span class="text-blue-400 font-semibold">{{ movie.ratings|default:"—" }}/5</span>
-              </div>
-              <div class="flex gap-3 items-center">
-                <span title="Likes">♥ {{ movie.total_likes|default:0|humanize_count }}</span>
-                <span title="Views">👁 {{ movie.total_views|default:0|humanize_count }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </a>
-    {% empty %}
-      <div class="col-span-full text-center py-12 text-gray-400">No movies yet.</div>
-    {% endfor %}
+            </td>
+            <td class="py-4 text-blue-400 font-semibold">
+              {{ movie.ratings|default:"—" }}/5
+            </td>
+            <td class="py-4 text-gray-300">
+              ♥ {{ movie.total_likes|default:0|humanize_count }}
+            </td>
+            <td class="py-4 text-gray-300">
+              👁 {{ movie.total_views|default:0|humanize_count }}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-12 text-gray-400">No movies yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}
